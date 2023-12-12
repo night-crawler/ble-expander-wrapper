@@ -1,0 +1,3 @@
+requests
+dataclasses-json
+loguru==0.7.2
