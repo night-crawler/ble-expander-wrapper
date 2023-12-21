@@ -1,6 +1,6 @@
 import enum
 from dataclasses import dataclass
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 from dataclasses_json import dataclass_json
 
@@ -26,6 +26,7 @@ class IoWriteCommand:
     fqcn: Fqcn
     value: list[int]
     wait_response: bool
+    timeout_ms: int
 
 
 @dataclass_json
@@ -43,8 +44,8 @@ class IoCommand:
     Read: Optional[IoReadCommand] = None
 
     @classmethod
-    def write(cls, fqcn: Fqcn, value: list, wait_response: bool):
-        return IoCommand(Write=IoWriteCommand(fqcn=fqcn, value=value, wait_response=wait_response))
+    def write(cls, fqcn: Fqcn, value: list, wait_response: bool, timeout_ms: int):
+        return IoCommand(Write=IoWriteCommand(fqcn=fqcn, value=value, wait_response=wait_response, timeout_ms=timeout_ms))
 
     @classmethod
     def read(cls, fqcn: Fqcn, wait_notification: bool, timeout_ms: int):

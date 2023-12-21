@@ -1,7 +1,7 @@
 from ble_collector_client import BleCollectorClient
 from contrib.scd import SCD4X
-from dto import *
 from expander import Expander
+from ble_timeout_setter_service import BleTimeoutSetter
 
 DATA_BUNDLE_UUID = "0000a001-0000-1000-8000-00805f9b34fb"
 MISO_UUID = "0000a002-0000-1000-8000-00805f9b34fb"
@@ -10,49 +10,40 @@ LOCK_UUID = "0000a004-0000-1000-8000-00805f9b34fb"
 POWER_UUID = "0000a005-0000-1000-8000-00805f9b34fb"
 RESULT_UUID = "0000a006-0000-1000-8000-00805f9b34fb"
 
-if __name__ == '__main__':
-    client = BleCollectorClient()
-    expander_service = Expander(client, 'hci0', 'FA:6F:EC:EE:4B:36')
+peripherals = [
+    'D0:F6:3B:34:4C:1F',
+    'D4:B7:67:56:DC:3B',
+    'FA:6F:EC:EE:4B:36',
+]
 
-    scd = SCD4X(expander_service, quiet=False)
-    scd.start_periodic_measurement()
-    co2, temperature, relative_humidity, _ = scd.measure(timeout=15)
+if __name__ == '__main__':
+    client = BleCollectorClient(address='http://192.168.0.220:9090')
+    # client = BleCollectorClient()
+    expander_service = Expander(client, 'hci0', 'FA:6F:EC:EE:4B:36', timeout_ms=10000)
+    timeout_setter = BleTimeoutSetter(client, 'hci0')
+
+    print(timeout_setter.set_all_timeouts(peripherals, 10000))
+
+    # expander_service.set_lock(2)
+    # expander_service.set_power(False)
+    #
+
+    try:
+        scd = SCD4X(expander_service, quiet=False)
+        scd.start_periodic_measurement()
+        co2, temperature, relative_humidity, _ = scd.measure(timeout=15)
+    finally:
+        expander_service.set_lock(0)
+        # expander_service.set_power(False)
+        pass
 
     print(f'CO2: {co2} ppm, Temperature: {temperature} C, Humidity: {relative_humidity} %rH')
 
-    #
-    # print(client.list_adapters())
-    # print(client.describe_adapters())
-    # b = [q for q in (2).to_bytes(1, 'little', signed=False)]
-    # r = PeripheralIoRequestDto(
-    #     batches=[
-    #         PeripheralIoBatchRequestDto(
-    #             commands=[
-    #                 IoCommand.write(
-    #                     fqcn=Fqcn(
-    #                         peripheral_address='FA:6F:EC:EE:4B:36',
-    #                         service_uuid='ac866789-aaaa-eeee-a329-969d4bc8621e',
-    #                         characteristic_uuid=LOCK_UUID
-    #                     ),
-    #                     value=b,
-    #                     wait_response=True
-    #                 ),
-    #
-    #                 IoCommand.read(
-    #                     fqcn=Fqcn(
-    #                         peripheral_address='FA:6F:EC:EE:4B:11',
-    #                         service_uuid='ac866789-aaaa-eeee-a329-969d4bc8621e',
-    #                         characteristic_uuid=RESULT_UUID,
-    #                     ),
-    #                     wait_notification=True,
-    #                     timeout_ms=2000,
-    #                 ),
-    #
-    #             ],
-    #             parallelism=32
-    #         )
-    #
+    # q = expander_service.calibrate_humidity_offset(
+    #     [
+    #         'D0:F6:3B:34:4C:1F',
+    #         'D4:B7:67:56:DC:3B',
+    #         'FA:6F:EC:EE:4B:36',
     #     ],
-    #     parallelism=4
+    #     72.0, 102.4 * 1000, 21.9
     # )
-    # print(client.write_read_peripheral_value('hci0', r))

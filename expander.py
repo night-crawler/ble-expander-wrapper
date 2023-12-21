@@ -1,9 +1,9 @@
 import typing_extensions
+from loguru import logger
 
 from dto import IoCommand, Fqcn, PeripheralIoBatchRequestDto, PeripheralIoRequestDto, PeripheralIoBatchResponseDto, \
     CommandResponse
 from util import pack_data_bundle, WriteMessage, ReadMessage
-from loguru import logger
 
 if typing_extensions.TYPE_CHECKING:
     from ble_collector_client import BleCollectorClient
@@ -44,11 +44,13 @@ class ExpanderError(Exception):
 class Expander:
     SERVICE_UUID = 'ac866789-aaaa-eeee-a329-969d4bc8621e'
     power_wait: int = 1
+    timeout_ms: int = 5000
 
-    def __init__(self, client: 'BleCollectorClient', adapter_id: str, peripheral_address: str):
+    def __init__(self, client: 'BleCollectorClient', adapter_id: str, peripheral_address: str, timeout_ms: int = 5000):
         self.client = client
         self.peripheral_address = peripheral_address
         self.adapter_id = adapter_id
+        self.timeout_ms = timeout_ms
 
     @staticmethod
     def _build_batch(*commands, parallelism: int = 32):
@@ -57,7 +59,7 @@ class Expander:
             parallelism=parallelism
         )
 
-    def _build_write(self, characteristic_uuid: str, value, wait_response: bool = False):
+    def _build_write(self, characteristic_uuid: str, value, wait_response: bool = False, timeout_ms: int = 2000):
         return IoCommand.write(
             fqcn=Fqcn(
                 peripheral_address=self.peripheral_address,
@@ -65,7 +67,8 @@ class Expander:
                 characteristic_uuid=characteristic_uuid
             ),
             value=value,
-            wait_response=wait_response
+            wait_response=wait_response,
+            timeout_ms=timeout_ms,
         )
 
     def _build_read(self, characteristic_uuid: str, wait_notification: bool = True, timeout_ms: int = 2000):
@@ -89,7 +92,7 @@ class Expander:
     def _client_read(self, characteristic_uuid: str):
         request = self._build_request(
             self._build_batch(
-                self._build_read(characteristic_uuid, wait_notification=False),
+                self._build_read(characteristic_uuid, wait_notification=False, timeout_ms=self.timeout_ms),
                 parallelism=1
             ),
             parallelism=1
@@ -102,8 +105,8 @@ class Expander:
     def _client_write_read(self, write_characteristic_uuid: str, value):
         request = self._build_request(
             self._build_batch(
-                self._build_write(write_characteristic_uuid, value),
-                self._build_read(RESULT_UUID)
+                self._build_write(write_characteristic_uuid, [*value], wait_response=False, timeout_ms=self.timeout_ms),
+                self._build_read(RESULT_UUID, timeout_ms=self.timeout_ms)
             ),
             parallelism=16
         )
@@ -209,3 +212,5 @@ class Expander:
                     result = self.read(address, size)
                     message.buf = result
                     logger.info("Read {} bytes from address {}: {}", size, address, result)
+
+
