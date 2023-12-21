@@ -20,7 +20,7 @@ PRESSURE_CH = '00002a6d-0000-1000-8000-00805f9b34fb'
 HUMIDITY_CH = '00002a6f-0000-1000-8000-00805f9b34fb'
 
 
-class Ble280Calibrator:
+class Bme280CalibratorService:
     timeout_ms: int = 5000
 
     def __init__(self, client: 'BleCollectorClient', adapter_id: str, timeout_ms: int = 5000):
