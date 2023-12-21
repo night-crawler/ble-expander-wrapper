@@ -40,6 +40,9 @@ def calibrate(client, adapter, peripherals):
 
 
 def set_timeout(client, adapter, peripheral_address, timeout_ms):
-    service = BleTimeoutSetter(client, adapter)
-    result = service.set_all_timeouts(peripheral_address, timeout_ms)
-    logger.info(f'Set timeout result: {result}')
+    try:
+        service = BleTimeoutSetter(client, adapter)
+        result = service.set_all_timeouts(peripheral_address, timeout_ms)
+        logger.info(f'Set timeout result: {result}')
+    except Exception as e:
+        logger.error(f'Failed to set timeout: {e}', exc_info=True)

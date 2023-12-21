@@ -15,11 +15,17 @@ PERIPHERALS = [
 if __name__ == '__main__':
     start_http_server(12500)
     collector_address = os.environ.get('COLLECTOR_ADDRESS', 'http://127.0.0.1:9090')
-    adapter = os.environ.get('ADAPTER', 'hci0')
+    adapter_id = os.environ.get('ADAPTER', 'hci0')
 
     client = BleCollectorClient(address=collector_address)
-    set_timeout(client, adapter, PERIPHERALS, 60000)
+    set_timeout(client, adapter_id, PERIPHERALS, 60000)
 
+    counter = 0
     while True:
-        read_scd41(client, adapter, 'FA:6F:EC:EE:4B:36')
+        if counter % 5 == 0:
+            set_timeout(client, adapter_id, PERIPHERALS, 60000)
+
+        read_scd41(client, adapter_id, 'FA:6F:EC:EE:4B:36')
         sleep(60)
+
+        counter += 1
