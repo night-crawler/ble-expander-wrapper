@@ -125,7 +125,11 @@ class Expander:
             if response is None:
                 continue
             if response.Error is not None:
-                raise ExpanderError(response.Error)
+                try:
+                    msg = response.Error['message']
+                except Exception as _:
+                    msg = f'{response.Error}'
+                raise ExpanderError(msg)
 
     @staticmethod
     def _interpret_response(command_response: CommandResponse):
