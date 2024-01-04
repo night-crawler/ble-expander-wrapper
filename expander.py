@@ -62,9 +62,9 @@ class Expander:
     def _build_write(self, characteristic_uuid: str, value, wait_response: bool = False, timeout_ms: int = 2000):
         return IoCommand.write(
             fqcn=Fqcn(
-                peripheral_address=self.peripheral_address,
-                service_uuid=self.SERVICE_UUID,
-                characteristic_uuid=characteristic_uuid
+                peripheral=self.peripheral_address,
+                service=self.SERVICE_UUID,
+                characteristic=characteristic_uuid
             ),
             value=value,
             wait_response=wait_response,
@@ -74,9 +74,9 @@ class Expander:
     def _build_read(self, characteristic_uuid: str, wait_notification: bool = True, timeout_ms: int = 2000):
         return IoCommand.read(
             fqcn=Fqcn(
-                peripheral_address=self.peripheral_address,
-                service_uuid=self.SERVICE_UUID,
-                characteristic_uuid=characteristic_uuid,
+                peripheral=self.peripheral_address,
+                service=self.SERVICE_UUID,
+                characteristic=characteristic_uuid,
             ),
             wait_notification=wait_notification,
             timeout_ms=timeout_ms,

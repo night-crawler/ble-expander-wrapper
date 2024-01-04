@@ -46,9 +46,9 @@ class BleTimeoutSetter:
     def build_set_timeout_cmd(self, peripheral: str, service: str, characteristic: str, notification_timeout: int):
         return IoCommand.write(
             fqcn=Fqcn(
-                peripheral_address=peripheral,
-                service_uuid=service,
-                characteristic_uuid=characteristic
+                peripheral=peripheral,
+                service=service,
+                characteristic=characteristic
             ),
             value=[*notification_timeout.to_bytes(4, 'little', signed=False)],
             wait_response=True,

@@ -15,9 +15,9 @@ class AdapterInfoDto:
 @dataclass_json
 @dataclass
 class Fqcn:
-    peripheral_address: str
-    service_uuid: str
-    characteristic_uuid: str
+    peripheral: str
+    service: str
+    characteristic: str
 
 
 @dataclass_json

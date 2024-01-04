@@ -35,9 +35,9 @@ class Bme280CalibratorService:
             return PeripheralIoBatchRequestDto(commands=[
                 IoCommand.read(
                     fqcn=Fqcn(
-                        peripheral_address=peripheral,
-                        service_uuid=BME280_SERVICE,
-                        characteristic_uuid=characteristic
+                        peripheral=peripheral,
+                        service=BME280_SERVICE,
+                        characteristic=characteristic
                     ),
                     wait_notification=False,
                     timeout_ms=self.timeout_ms,
@@ -61,9 +61,9 @@ class Bme280CalibratorService:
             write_commands.append(
                 IoCommand.write(
                     fqcn=Fqcn(
-                        peripheral_address=peripheral,
-                        service_uuid=BME280_SERVICE,
-                        characteristic_uuid=ch
+                        peripheral=peripheral,
+                        service=BME280_SERVICE,
+                        characteristic=ch
                     ),
                     value=[*value],
                     wait_response=True,
