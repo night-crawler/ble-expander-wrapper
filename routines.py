@@ -45,4 +45,4 @@ def set_timeout(client, adapter, peripheral_address, timeout_ms):
         result = service.set_all_timeouts(peripheral_address, timeout_ms)
         logger.info(f'Set timeout result: {result}')
     except Exception as e:
-        logger.error(f'Failed to set timeout: {e}', exc_info=True)
+        logger.error(f'Failed to set timeout: {e}')
